@@ -1,12 +1,9 @@
-from flask import Flask, redirect, render_template, request
+from flask import Flask, render_template, request
 import requests
 import folium
 from geopy.geocoders import Nominatim
 import time
 from geopy.exc import GeocoderTimedOut
-import pprint
-from flask import jsonify, make_response
-
 
 app = Flask(__name__)
 
@@ -21,10 +18,10 @@ def register():
     name = request.form.get("name")
     key = request.form.get("domain")
     start_coords = (46.2276, 2.2137)
-    folium_map = folium.Map(location=start_coords, zoom_start=2)
+    folium_map = folium.Map(location=start_coords, zoom_start=3)
     f_json = get_json(name, key)
     num = len(f_json['users'])
-    for user in range(num-1):
+    for user in range(num - 1):
         if len(list(f_json['users'][user]["location"])) < 1:
             continue
         else:
@@ -43,7 +40,9 @@ def register():
             if cord == "None":
                 continue
             else:
-                folium_map.add_child(folium.Marker(location=cord, popup=f_name, icon=folium.Icon()))
+                folium_map.add_child(folium.Marker(location=cord, popup=f_name,
+                                                   icon=folium.Icon(
+                                                       icon='user')))
     return folium_map._repr_html_()
 
 
@@ -57,9 +56,9 @@ def get_json(key, name):
         'screen_name': name
     }
     search_url = '{}1.1/friends/list.json'.format(base_url)
-    response = requests.get(search_url, headers=search_headers, params=search_params)
+    response = requests.get(search_url, headers=search_headers,
+                            params=search_params)
     json_response = response.json()
-    pprint.pprint(json_response)
     return json_response
 
 
